@@ -111,7 +111,12 @@ def get_users():
         with open(os.path.join(user_file_path, i), "r") as file:
             data = json.load(file)
         registered_ip = data.get("registered_ip", None)
-        username = i.replace(".json","")
+        username = i.replace(".json", "")
         if registered_ip is not None:
-            users.append({"username": username, "registered_ip": registered_ip,"Actions":f"<a href='/delete/{username}'>Delete</a>"})
+            users.append({"username": username, "registered_ip": registered_ip,
+                          "Actions": f"<a href='/delete/{username}'>Delete</a>"})
     return users
+
+
+def delete_user(user):
+    os.remove(os.path.join(user_file_path, user + ".json"))

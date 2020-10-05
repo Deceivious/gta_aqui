@@ -47,6 +47,7 @@ def add_rule(user_name, remoteip, action='block', localport='6672'):
 
 def delete_rule(rule_name):
     """Delete specified rule"""
+
     if not rule_name.startswith("AQUI_"):
         raise Exception("Non AQUI rule")
     p = subprocess.Popen(
@@ -85,6 +86,6 @@ def get_rules():
 def delete_all_rules():
     all_rules = get_rules()
     for rule in all_rules:
-        delete_rule(rule)
+        delete_rule(rule["Rule Name"])
 
 

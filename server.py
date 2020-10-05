@@ -1,8 +1,7 @@
 from flask import Flask, render_template, redirect, request, session
-from server.firewall_helper import delete_rule, delete_all_rules, update_rules
-from server.standarize import standarize_users
+from server.firewall_helper import delete_all_rules, update_rules
 from server.users_module import create_user, check_user, get_token, get_approval_list, set_permission, check_token, \
-    bind_ip_to_user, get_users
+    bind_ip_to_user, get_users, delete_user
 from server.env import ADMIN_USER, ADMIN_PASS, IP_ADDRESS, PORT, ROOT
 from server.exceptions import UserExists, NotPermitted, UserDoesnotExist
 import os
@@ -87,7 +86,7 @@ def register_ip():
     bind_ip_to_user(user, remote_ip)
     delete_all_rules()
     update_rules()
-    return "Your IP has been registered."
+    return f"You have registered with IP : {remote_ip}."
 
 
 @app.route("/logout")
@@ -105,11 +104,13 @@ def root_get():
 
 
 @is_admin
-@app.route("/delete/<rule_name>", methods=["POST"])
+@app.route("/delete/<rule_name>", methods=["GET"])
 def delete_rule_entry(rule_name):
-    msg = delete_rule(rule_name)
-    list_data = standarize_users()
-    return render_template("index.html", list_data=list_data, flash=msg)
+    msg = delete_user(rule_name)
+    list_data = get_users()
+    delete_all_rules()
+    update_rules()
+    return redirect("/list")
 
 
 @is_admin
