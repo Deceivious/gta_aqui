@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+SERVER IP : {{server_ip}}
+{{flash|safe}}
+
+<a href="/approve"><button>Approve User</button></a>
+<a href="/logout">Logout </a>
+
+<style>
+    table {border:1px solid black;}
+    td {border:1px solid black;}
+    th {border:1px solid black;}
+</style>
+{%if list_data is string %}
+
+<br>{{list_data}}
+{%else%}
+
+<table >
+    <tr>
+        <th>User</th>
+        <th>Registered IP</th>
+        <th>Actions</th>
+    </tr>
+{%for i in list_data%}
+    <tr>
+        <th>{{i['username']}}</th>
+        <th>{{i['registered_ip']}}</th>
+        <th>{{i['Actions']|safe}}</th>
+    </tr>
+{%endfor%}
+</table>
+{%endif%}
+
+
+</body>
+</html>
