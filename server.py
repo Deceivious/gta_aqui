@@ -2,14 +2,14 @@ from flask import Flask, render_template, redirect, request, session
 from server.firewall_helper import delete_all_rules, update_rules
 from server.users_module import create_user, check_user, get_token, get_approval_list, set_permission, check_token, \
     bind_ip_to_user, get_users, delete_user
-from server.env import ADMIN_USER, ADMIN_PASS, IP_ADDRESS, PORT, ROOT
+from server.env import ADMIN_USER, ADMIN_PASS, IP_ADDRESS, PORT, ROOT,SECRET_KEY
 from server.exceptions import UserExists, NotPermitted, UserDoesnotExist
 import os
 from functools import wraps
 
 app = Flask("__name__")
 app.template_folder = os.path.join(ROOT, 'server', 'templates')
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.secret_key = SECRET_KEY
 
 
 def is_admin(fxn):
