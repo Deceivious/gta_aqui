@@ -1,5 +1,5 @@
 # gta_aqui
-This application provides a web interface for managing firewall rules to control the IPs that are able to communicate with the server allowing the host to control which IPs can communicate with the host.
+This application provides a web interface for managing firewall rules allowing the host to control which IPs can communicate with the host.
 
 The application stores IPs of registered users in the host machine and blacklists any other IP that is not associated with the registered users.
 
