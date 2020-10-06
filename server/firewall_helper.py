@@ -27,7 +27,14 @@ def update_rules():
         p = subprocess.Popen(
             [
                 "powershell",
-                f'New-NetFirewallRule -DisplayName {rule_name} -Direction Inbound -Action Block '
+                f'New-NetFirewallRule -DisplayName {rule_name}_in -Direction Inbound -Action Block '
+                f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {localport}'],
+            shell=True, stdout=PIPE, stderr=PIPE
+        )
+        p = subprocess.Popen(
+            [
+                "powershell",
+                f'New-NetFirewallRule -DisplayName {rule_name}_out -Direction Outbound -Action Block '
                 f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {localport}'],
             shell=True, stdout=PIPE, stderr=PIPE
         )

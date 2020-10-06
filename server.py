@@ -5,6 +5,7 @@ from server.users_module import create_user, check_user, get_token, get_approval
 from server.env import ADMIN_USER, ADMIN_PASS, IP_ADDRESS, PORT, ROOT
 from server.exceptions import UserExists, NotPermitted, UserDoesnotExist
 import os
+from functools import wraps
 
 app = Flask("__name__")
 app.template_folder = os.path.join(ROOT, 'server', 'templates')
@@ -12,6 +13,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 
 def is_admin(fxn):
+    @wraps(fxn)
     def inner():
         if session["username"] != ADMIN_USER:
             return redirect("/")
@@ -35,14 +37,15 @@ def login():
 
 @is_admin
 @app.route("/approve", methods=["GET"])
+@is_admin
 def approve():
     approval_list = get_approval_list()
     approval_list = [f"<option value='{i}'>{i}</option>" for i in approval_list]
     return f"<form taget='/approve' method='POST'><select name='username'>{approval_list}</select><input type='submit'></form>"
 
 
-@is_admin
 @app.route("/approve", methods=["POST"])
+@is_admin
 def approve_post():
     user = dict(request.form)["username"]
     set_permission(user)
@@ -96,15 +99,15 @@ def logout():
     return redirect("/")
 
 
-@is_admin
 @app.route("/list", methods=["GET"])
+@is_admin
 def root_get():
     list_data = get_users()
     return render_template("index.html", list_data=list_data, server_ip=f"http://{IP_ADDRESS}:{PORT}")
 
 
-@is_admin
 @app.route("/delete/<rule_name>", methods=["GET"])
+@is_admin
 def delete_rule_entry(rule_name):
     delete_user(rule_name)
     delete_all_rules()
@@ -112,10 +115,17 @@ def delete_rule_entry(rule_name):
     return redirect("/list")
 
 
-@is_admin
 @app.route("/add", methods=["GET"])
+@is_admin
 def add_user_get():
     return render_template("add_rule.html")
+
+
+@app.route("/reset", methods=["GET"])
+@is_admin
+def stop_session():
+    delete_all_rules()
+    return "Session Reset"
 
 
 if __name__ == "__main__":
