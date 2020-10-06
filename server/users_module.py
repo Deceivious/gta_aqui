@@ -11,10 +11,12 @@ os.makedirs(user_file_path, exist_ok=True)
 
 
 def get_hash(password):
+    """ Gets hash value for password. """
     return hashlib.sha224(password.encode()).hexdigest()
 
 
 def create_user(username, password):
+    """ Create a new user. """
     if username == ADMIN_USER:
         raise Exception("User name exists.")
     user_path = os.path.join(user_file_path, username + ".json")
@@ -28,6 +30,7 @@ def create_user(username, password):
 
 
 def check_user(username, password):
+    """ Checks if username and password matches. """
     if username == ADMIN_USER and password == ADMIN_PASS:
         return True
     user_path = os.path.join(user_file_path, username + ".json")
@@ -45,6 +48,7 @@ def check_user(username, password):
 
 
 def check_token(username, token):
+    """ Checks if provides token matches the user token. """
     if username == ADMIN_USER and password == ADMIN_PASS:
         return True
     user_path = os.path.join(user_file_path, username + ".json")
@@ -61,6 +65,7 @@ def check_token(username, token):
 
 
 def set_permission(username):
+    """ Creates a token for the user. """
     if username == ADMIN_USER:
         return
     user_path = os.path.join(user_file_path, username + ".json")
@@ -76,6 +81,7 @@ def set_permission(username):
 
 
 def get_token(username):
+    """ Extracts the token allocated for the user. """
     user_path = os.path.join(user_file_path, username + ".json")
     if not os.path.exists(user_path):
         raise UserDoesnotExist
@@ -87,6 +93,7 @@ def get_token(username):
 
 
 def get_approval_list():
+    """ Extracts list of users that have already been approved. """
     user_to_approve = []
     for user in os.listdir(user_file_path):
         with open(os.path.join(user_file_path, user), "r") as file:
@@ -97,6 +104,7 @@ def get_approval_list():
 
 
 def bind_ip_to_user(user, ip):
+    """ Updates the IP registered to the user."""
     user_file = os.path.join(user_file_path, user + ".json")
     with open(user_file, "r") as file:
         data = json.load(file)
@@ -106,6 +114,7 @@ def bind_ip_to_user(user, ip):
 
 
 def get_users():
+    """ Gets all usernames and registered IP of the user. """
     users = []
     for i in os.listdir(user_file_path):
         with open(os.path.join(user_file_path, i), "r") as file:
@@ -119,4 +128,5 @@ def get_users():
 
 
 def delete_user(user):
+    """ Deletes a user. """
     os.remove(os.path.join(user_file_path, user + ".json"))
