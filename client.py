@@ -18,7 +18,7 @@ def register_ip():
         data = json.load(file)
     url = data["ip"]
     del data["ip"]
-    data["remoteip"] = r.get('https://api.ipify.org').text
+    # data["remoteip"] = r.get('https://api.ipify.org').text
     res = r.post(url + "/register_ip", json=data)
     print(res.content)
     print("The application will close in 5 seconds.")
