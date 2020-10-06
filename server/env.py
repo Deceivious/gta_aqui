@@ -1,11 +1,13 @@
 import os
+import json
 
 ROOT = os.path.dirname(os.path.dirname(__file__))
 
-IP_ADDRESS = "127.0.0.1"
-PORT = "5555"
+with open(os.path.join(ROOT, "env.json"), "r") as file:
+    data = json.load(file)
 
-SECRET_KEY = "SECRET_KEY_HERE_DONT_SHARE_DONT_LOSE"
-
-ADMIN_USER = "admin"
-ADMIN_PASS = "admin"
+IP_ADDRESS = data["IP_ADDRESS"]
+PORT = data["PORT"]
+SECRET_KEY = data["SECRET_KEY"]
+ADMIN_USER = data["ADMIN_USER"]
+ADMIN_PASS = data["ADMIN_PASS"]

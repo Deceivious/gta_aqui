@@ -106,8 +106,7 @@ def root_get():
 @is_admin
 @app.route("/delete/<rule_name>", methods=["GET"])
 def delete_rule_entry(rule_name):
-    msg = delete_user(rule_name)
-    list_data = get_users()
+    delete_user(rule_name)
     delete_all_rules()
     update_rules()
     return redirect("/list")
