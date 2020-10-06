@@ -12,14 +12,14 @@ app.template_folder = os.path.join(ROOT, 'server', 'templates')
 app.secret_key = SECRET_KEY
 
 
-def is_admin(fxn):
+def is_admin(fxn,*args,**kargs):
     """ Allows only admin users to access the function. """
 
     @wraps(fxn)
-    def inner():
+    def inner(*args,**kargs):
         if session["username"] != ADMIN_USER:
             return redirect("/")
-        return fxn()
+        return fxn(*args,**kargs)
 
     return inner
 
@@ -111,7 +111,7 @@ def register_ip():
     user = data["username"]
     if not check_token(user, token):
         return "Your token is invalid."
-    remote_ip = request.remote_addr
+    remote_ip = request.environ['REMOTE_ADDR']
     bind_ip_to_user(user, remote_ip)
 
     # Reset firewall rules

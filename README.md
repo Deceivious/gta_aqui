@@ -16,9 +16,9 @@ Setup env.json as required.
 
 -IP_ADDRESS : Determines which IP the web application will be hosted on
 
--PORT : Determines which PORT the web applicationw ill be hosted on
+-PORT : Determines which PORT the web application will be hosted on
 
--SECRET_KEY : A random string for client and server to communicated with eachother
+-SECRET_KEY : Secret key for session management
 
 -ADMIN_USER : Username for admin access
 

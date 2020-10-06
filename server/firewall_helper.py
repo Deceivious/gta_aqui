@@ -29,6 +29,7 @@ def update_rules():
                 f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {localport}'],
             shell=True, stdout=PIPE, stderr=PIPE
         )
+        print(p.communicate()[0])
 
         # Add outbound rules
         p = subprocess.Popen(
@@ -38,6 +39,7 @@ def update_rules():
                 f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {localport}'],
             shell=True, stdout=PIPE, stderr=PIPE
         )
+        print(p.communicate()[0])
 
 
 def add_rule(user_name, remoteip, action='block', localport='6672'):
