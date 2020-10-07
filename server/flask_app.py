@@ -12,14 +12,14 @@ app.template_folder = os.path.join(ROOT, 'server', 'templates')
 app.secret_key = SECRET_KEY
 
 
-def is_admin(fxn,*args,**kargs):
+def is_admin(fxn, *args, **kargs):
     """ Allows only admin users to access the function. """
 
     @wraps(fxn)
-    def inner(*args,**kargs):
+    def inner(*args, **kargs):
         if session["username"] != ADMIN_USER:
             return redirect("/")
-        return fxn(*args,**kargs)
+        return fxn(*args, **kargs)
 
     return inner
 
@@ -162,7 +162,8 @@ def stop_session():
     delete_all_rules()
     return "Session Stopped"
 
-@app.route("/reset",methods=["GET"])
+
+@app.route("/reset", methods=["GET"])
 @is_admin
 def reset_rules():
     """ Restarts the rules. """
