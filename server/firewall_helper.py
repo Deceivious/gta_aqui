@@ -4,42 +4,59 @@ from ipaddress import ip_address
 
 from server.users_module import get_users
 
+from server.get_take3_ips import get_take3_ips
 
-def update_rules():
-    """ Updates inbound and outgoing rules. """
+take3_ips = get_take3_ips()
 
+
+def get_blacklist_range():
     # Get whitelisted users
     whitelist = get_users()
     # Extract whitelisted IP
-    whitelist = sorted([i["registered_ip"] for i in whitelist if "registered_ip" in i])
+    whitelist = [i["registered_ip"] for i in whitelist if "registered_ip" in i] + take3_ips
+    whitelist=set(whitelist)
+    whitelist = [ip_address(i) for i in whitelist]
+    whitelist.sort()
+    whitelist = [str(i) for i in whitelist]
+    whitelist_lower = ["0.0.0.0"]
+    whitelist_upper = []
+    for i in whitelist:
+        i = ip_address(i)
+        lower = str(i + 1)
+        upper = str(i - 1)
+        if lower not in whitelist:
+            whitelist_lower.append(lower)
+        if upper not in whitelist:
+            whitelist_upper.append(upper)
+    whitelist_upper = whitelist_upper + ["255.255.255.255"]
     # Generate black listed IP
-    whitelist_lower = ["0.0.0.0"] + [str(ip_address(i) - 1) for i in whitelist]
-    whitelist_upper = [str(ip_address(i) + 1) for i in whitelist] + ["255.255.255.255"]
     blacklist = list(zip(whitelist_lower, whitelist_upper))
     blacklists = ["-".join(i) for i in blacklist]
+    return blacklists
 
-    for idx, localport in enumerate(blacklists):
-        rule_name = f"AQUI_{idx}"
 
-        # Add inbound rules
-        p = subprocess.Popen(
-            [
-                "powershell",
-                f'New-NetFirewallRule -DisplayName {rule_name}_in -Direction Inbound -Action Block '
-                f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {localport}'],
-            shell=True, stdout=PIPE, stderr=PIPE
-        )
-        print(p.communicate()[0])
+def update_rules():
+    """ Updates inbound and outgoing rules. """
+    blacklists = get_blacklist_range()
+    blacklists = ",".join(blacklists)
+    rule_name = f"AQUI_1"
+    # Add inbound rules
+    p = subprocess.Popen(
+        [
+            "powershell",
+            f'New-NetFirewallRule -DisplayName {rule_name}_in -Direction Inbound -Action Block '
+            f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {blacklists}'],
+        shell=True, stdout=PIPE, stderr=PIPE
+    )
 
-        # Add outbound rules
-        p = subprocess.Popen(
-            [
-                "powershell",
-                f'New-NetFirewallRule -DisplayName {rule_name}_out -Direction Outbound -Action Block '
-                f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {localport}'],
-            shell=True, stdout=PIPE, stderr=PIPE
-        )
-        print(p.communicate()[0])
+    # Add outbound rules
+    p = subprocess.Popen(
+        [
+            "powershell",
+            f'New-NetFirewallRule -DisplayName {rule_name}_out -Direction Outbound -Action Block '
+            f'-Protocol UDP -LocalPort 6672 -LocalAddress Any -RemoteAddress {blacklists}'],
+        shell=True, stdout=PIPE, stderr=PIPE
+    )
 
 
 def add_rule(user_name, remoteip, action='block', localport='6672'):
