@@ -155,9 +155,17 @@ def add_user_get():
     return render_template("add_rule.html")
 
 
-@app.route("/reset", methods=["GET"])
+@app.route("/stop", methods=["GET"])
 @is_admin
 def stop_session():
     """ Deletes all rules. """
     delete_all_rules()
+    return "Session Stopped"
+
+@app.route("/reset",methods=["GET"])
+@is_admin
+def reset_rules():
+    """ Restarts the rules. """
+    delete_all_rules()
+    update_rules()
     return "Session Reset"
