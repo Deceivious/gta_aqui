@@ -7,6 +7,7 @@ with open(os.path.join(ROOT, "env.json"), "r") as file:
     data = json.load(file)
 
 IP_ADDRESS = data["IP_ADDRESS"]
+IP_ADDRESS = "0.0.0.0"
 PORT = data["PORT"]
 SECRET_KEY = data["SECRET_KEY"]
 ADMIN_USER = data["ADMIN_USER"]

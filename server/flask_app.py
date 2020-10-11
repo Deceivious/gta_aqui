@@ -36,11 +36,54 @@ def login():
         try:
             # Approved users are shown their token
             token = get_token(session["username"])
-            return f"<a href='/logout'>Logout</a><br>Your Token is <br><input style='width:100%;' disabled value='{token}'>"
+            return f"<a href='/logout'>Logout</a>" \
+                f"<br><form method='post'action='/register_ip'>" \
+                f"<input type='submit' value='Register IP'>" \
+                f"</form>Your Token is " \
+                f"<br><input style='width:100%;' disabled value='{token}'>"
         except NotPermitted:
             # Non approved users are displyed message
             return "Wait for approval.<a href='/logout'>LogOut</a>"
     return render_template("login.html")
+
+
+@app.route("/", methods=["POST"])
+def login_post():
+    """ Username and password check for login. """
+    user_data = dict(request.form)
+
+    # Handle login data
+    if user_data["btn"] == 'login':
+
+        # Redirect admin users to list page
+        if user_data["username"] == ADMIN_USER and user_data["password"] == ADMIN_PASS:
+            session["username"] = ADMIN_USER
+            return redirect("/list")
+
+        # Display token for verified users
+        try:
+            user_check = check_user(user_data["username"], user_data["password"])
+        except UserDoesnotExist:
+            return "User does not exist."
+        if user_check:
+            session["username"] = user_data["username"]
+            try:
+                token = get_token(user_data["username"])
+                return f"<a href='/logout'>Logout</a>" \
+                    f"<br><form method='post'action='/register_ip'>" \
+                    f"<input type='submit' value='Register IP'>" \
+                    f"</form>Your Token is " \
+                    f"<br><input style='width:100%;' disabled value='{token}'>"
+            except NotPermitted:
+                return "Wait for approval.<a href='/logout'>LogOut</a>"
+
+    # Handle sign up data
+    elif user_data["btn"] == 'signup':
+        try:
+            create_user(user_data["username"], user_data["password"])
+        except UserExists:
+            return "User exists."
+        return "Wait for approval.<a href='/logout'>LogOut</a>"
 
 
 @is_admin
@@ -68,50 +111,24 @@ def approve_post():
     return redirect("/approve")
 
 
-@app.route("/", methods=["POST"])
-def login_post():
-    """ Username and password check for login. """
-    user_data = dict(request.form)
-
-    # Handle login data
-    if user_data["btn"] == 'login':
-
-        # Redirect admin users to list page
-        if user_data["username"] == ADMIN_USER and user_data["password"] == ADMIN_PASS:
-            session["username"] = ADMIN_USER
-            return redirect("/list")
-
-        # Display token for verified users
-        try:
-            user_check = check_user(user_data["username"], user_data["password"])
-        except UserDoesnotExist:
-            return "User does not exist."
-        if user_check:
-            session["username"] = user_data["username"]
-            try:
-                token = get_token(user_data["username"])
-                return f"<a href='/logout'>Logout</a><br>Your Token is <br><input style='width:100%;' disabled value='{token}'>"
-            except NotPermitted:
-                return "Wait for approval.<a href='/logout'>LogOut</a>"
-
-    # Handle sign up data
-    elif user_data["btn"] == 'signup':
-        try:
-            create_user(user_data["username"], user_data["password"])
-        except UserExists:
-            return "User exists."
-        return "Wait for approval.<a href='/logout'>LogOut</a>"
-
-
 @app.route("/register_ip", methods=["POST"])
 def register_ip():
     """ Register new IP for user. """
     data = request.json
-    token = data["token"]
-    user = data["username"]
-    if not check_token(user, token):
-        return "Your token is invalid."
     remote_ip = request.environ['REMOTE_ADDR']
+
+    try:
+        user = data["username"]
+        token = data["token"]
+    except:
+        if "username" not in session:
+            raise Exception("Session mismatch.")
+        user = session["username"]
+    else:
+        token_pass = check_token(user, token)
+        if not token_pass:
+            return "Your token is invalid."
+
     bind_ip_to_user(user, remote_ip)
 
     # Reset firewall rules
